@@ -13,7 +13,7 @@ COPY . .
 RUN npm install
 
 # Install Python dependencies (if any)
-RUN pip3 install yfinance  # Uncomment if you need pip modules
+RUN pip3 install yfinance
 
 # Default command
 CMD ["node", "server.js"]

@@ -1,21 +1,31 @@
 import yfinance as yf
 import sys
 import json
+import pandas as pd
 
 symbol = sys.argv[1] if len(sys.argv) > 1 else 'AAPL'
 ticker = yf.Ticker(symbol)
 
-# ✅ Get 1-minute interval data for the past 7 days (max allowed)
-hist = ticker.history(period="7d", interval="1m")
+# Get last 2 days of 1-minute data
+hist = ticker.history(period="2d", interval="1m")
 
-# Ensure at least one row is returned
-if hist.empty:
-    print(json.dumps([]))
-    sys.exit()
-
-# Prepare JSON data
+# Drop any rows with NaNs (common with pre/post market)
+hist = hist.dropna(subset=["Close"])
 hist = hist.reset_index()
-hist["Datetime"] = hist["Datetime"].astype(str)  # For timestamp
-prices = hist[["Datetime", "Close"]].to_dict(orient='records')
+hist["Datetime"] = hist["Datetime"].astype(str)
 
-print(json.dumps(prices))
+# Calculate previous close (last value from first day)
+hist["Date"] = pd.to_datetime(hist["Datetime"]).dt.date
+prev_day = hist["Date"].min()
+prev_close_row = hist[hist["Date"] == prev_day].iloc[-1]
+prev_close = prev_close_row["Close"]
+
+# Convert to JSON structure
+data = hist[["Datetime", "Close"]].to_dict(orient='records')
+
+output = {
+    "PrevClose": round(float(prev_close), 2),
+    "Data": data[-10:]  # Last 10 minutes
+}
+
+print(json.dumps(output))

@@ -38,18 +38,18 @@ app.get('/api/stock/minute', (req, res) => {
 
   execFile(pythonPath, ['fetch_minute_prices.py', symbol], (error, stdout, stderr) => {
     if (error) {
-      console.error('❌ Error running minute script:', error);
-      return res.status(500).json({ error: 'Failed to fetch minute-by-minute data' });
+      console.error('❌ Error:', error);
+      return res.status(500).json({ error: 'Failed to fetch stock data' });
     }
-
+  
     try {
       const data = JSON.parse(stdout);
-      res.json(data);
+      res.json(data);  // Now includes Data + PrevClose
     } catch (e) {
-      console.error('❌ JSON parsing error (minute):', e);
-      res.status(500).json({ error: 'Invalid JSON from minute-by-minute script' });
+      console.error('❌ Parsing error:', e);
+      res.status(500).json({ error: 'Invalid JSON from Python script' });
     }
-  });
+  });  
 });
 
 app.listen(PORT, () => {

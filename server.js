@@ -30,6 +30,28 @@ app.get('/api/stock', (req, res) => {
   });
 });
 
+app.get('/api/stock/minute', (req, res) => {
+  const symbol = req.query.symbol || 'AAPL';
+  console.log("🕒 Received request for minute-level data:", symbol);
+
+  const pythonPath = '/app/venv/bin/python';
+
+  execFile(pythonPath, ['fetch_minute_prices.py', symbol], (error, stdout, stderr) => {
+    if (error) {
+      console.error('❌ Error running minute script:', error);
+      return res.status(500).json({ error: 'Failed to fetch minute-by-minute data' });
+    }
+
+    try {
+      const data = JSON.parse(stdout);
+      res.json(data);
+    } catch (e) {
+      console.error('❌ JSON parsing error (minute):', e);
+      res.status(500).json({ error: 'Invalid JSON from minute-by-minute script' });
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });

@@ -7,7 +7,7 @@ symbol = sys.argv[1] if len(sys.argv) > 1 else 'AAPL'
 ticker = yf.Ticker(symbol)
 
 # Get last 2 days of 1-minute data
-hist = ticker.history(period="2d", interval="1m")
+hist = ticker.history(period="5d", interval="1m")
 
 # Drop any rows with NaNs (common with pre/post market)
 hist = hist.dropna(subset=["Close"])

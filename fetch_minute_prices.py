@@ -25,7 +25,7 @@ data = hist[["Datetime", "Close"]].to_dict(orient='records')
 
 output = {
     "PrevClose": round(float(prev_close), 2),
-    "Data": data[-10:]  # Last 10 minutes
+    "Data": data
 }
 
 print(json.dumps(output))
